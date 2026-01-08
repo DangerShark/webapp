@@ -1,124 +1,83 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Подписка</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root{
-      --bg: var(--tg-theme-bg-color, #0b0f17);
-      --text: var(--tg-theme-text-color, #e7eefc);
-      --hint: var(--tg-theme-hint-color, #97a3b6);
-      --button: var(--tg-theme-button-color, #2ea6ff);
-      --buttonText: var(--tg-theme-button-text-color, #ffffff);
-      --stroke: color-mix(in srgb, var(--text) 14%, transparent);
-      --shadow: 0 10px 40px rgba(0,0,0,.35);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(46,166,255,.18), transparent 60%),
-        radial-gradient(1000px 700px at 90% 30%, rgba(255,65,130,.14), transparent 55%),
-        var(--bg);
-      color: var(--text);
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-    }
-    .wrap{width:min(520px, 100%)}
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border: 1px solid var(--stroke);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    .top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-    .logo{
-      width:44px;height:44px;border-radius:14px;
-      background: conic-gradient(from 180deg, rgba(46,166,255,.9), rgba(255,65,130,.85), rgba(46,166,255,.9));
-      box-shadow: 0 12px 35px rgba(46,166,255,.18);
-    }
-    h1{font-size:18px;margin:0}
-    p{margin:10px 0 0;color:var(--hint);line-height:1.45}
-    .pill{
-      margin-top:14px;
-      border: 1px solid var(--stroke);
-      border-radius: 16px;
-      padding: 12px;
-      background: rgba(0,0,0,.08);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-    }
-    .btns{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
-    button{
-      appearance:none;border:0; cursor:pointer;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-weight: 700;
-      background: var(--button);
-      color: var(--buttonText);
-      flex:1;
-      min-width: 160px;
-      box-shadow: 0 12px 25px rgba(46,166,255,.18);
-      transition: transform .08s ease;
-    }
-    button.secondary{
-      background: transparent;
-      color: var(--text);
-      border:1px solid var(--stroke);
-      box-shadow:none;
-    }
-    button:active{transform: scale(.99)}
-    .tiny{font-size:12px;color:var(--hint);margin-top:12px}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>File Hosting</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f17;
+  color:#fff;
+  font-family:system-ui;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card{
+  width:90%;
+  max-width:420px;
+  background:rgba(255,255,255,.06);
+  border-radius:20px;
+  padding:20px;
+}
+button{
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  border:0;
+  border-radius:14px;
+  background:#2ea6ff;
+  color:#fff;
+  font-size:16px;
+}
+.sub{
+  background:#20c997;
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <div class="logo"></div>
-        <div>
-          <h1>Подписка на 1 месяц</h1>
-          <p>Нажми «Оплатить» — бот выставит счёт через CryptoBot.</p>
-        </div>
-      </div>
 
-      <div class="pill">
-        <span>Действие</span>
-        <b>1 месяц</b>
-      </div>
+<div class="card" id="app"></div>
 
-      <div class="btns">
-        <button id="buy">Оплатить</button>
-        <button class="secondary" id="status">Статус</button>
-      </div>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-      <div class="tiny">
-        Работает только внутри Telegram (Mini App).
-      </div>
-    </div>
-  </div>
+const app = document.getElementById("app");
+const params = new URLSearchParams(window.location.search);
+const file = params.get("file");
 
-  <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); }
+if (file) {
+  app.innerHTML = `
+    <h2>📄 Файл</h2>
+    <p>Нажмите скачать</p>
+    <button onclick="download()">🔽 Скачать</button>
+  `;
+} else {
+  app.innerHTML = `
+    <h2>💳 Подписка</h2>
+    <p>1 месяц — $0.5</p>
+    <button class="sub" onclick="subscribe()">Оплатить</button>
+  `;
+}
 
-    function send(action){
-      if (!tg) return alert("Открой это в Telegram.");
-      tg.sendData(action);
-    }
+function download(){
+  tg.sendData(JSON.stringify({
+    action:"download",
+    file:file
+  }));
+}
 
-    document.getElementById("buy").addEventListener("click", () => send("buy_month"));
-    document.getElementById("status").addEventListener("click", () => send("status"));
-  </script>
+function subscribe(){
+  tg.sendData(JSON.stringify({
+    action:"subscribe"
+  }));
+}
+</script>
+
 </body>
 </html>
